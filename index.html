@@ -16,7 +16,7 @@
 const $=id=>document.getElementById(id), hide=id=>$(id).classList.add("hidden"), show=id=>$(id).classList.remove("hidden");
 const sections=[
 ["1. Identificação e dados gerais",[
-["data_registro","Data do registro","date",true],["numero_os","Nº da O.S.","text"],["cliente","Cliente","text"],["codigo_cliente","Código do cliente","text"],["codigo_desenho_peca_lote","Código do desenho / peça / lote","text"],["emissor","Colaborador (emissor)","text"]]],
+["data_registro","Data do registro","date",true],["origem","Tipo de RNC","select",false,["Interna","Externa"]],["numero_os","Nº da O.S.","text"],["cliente","Cliente","text"],["codigo_cliente","Código do cliente","text"],["codigo_desenho_peca_lote","Código do desenho / peça / lote","text"],["emissor","Colaborador (emissor)","text"]]],
 ["2. Peça / componente afetado",[["componente","Componente","select",false,["BA","MATRIZ","FEEDER","ESPINA","BAT","BO CARCAÇA","PORTA BAT","OUTROS"]],["outro_componente","Outro componente","text"]]],
 ["3. Categoria / classificação da falha (Pareto)",[["categoria","Categoria principal","select",false,["Erro de Projeto / Desenho","Erro de Programação (CAM / Simul.)","Erro de Operação / Ajuste de Máquina","Desgaste / Quebra de Ferramenta","Matéria-Prima com Defeito / Fornecedor","Erro de Medição / Instrumento","Falha de Manutenção de Equipamento","Outros"]],["categoria_outros","Detalhe se 'Outros'","text","wide"]]],
 ["4. Impacto financeiro e tempo de máquina",[["horas_retrabalho","Horas de retrabalho (homem/máquina)","number"],["custo_estimado","Custo estimado (R$)","number"],["maquina_equipamento","Máquina / equipamento","text"]]],
