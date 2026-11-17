@@ -9,6 +9,43 @@ Deno.serve(async(req:Request)=>{
  try{
   const b=await req.json();
   const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  if(b.action==="sendReminders"){
+   const cronCfg=await db.from("rnc_cron_config").select("token_hash").eq("id",1).single();
+   const cronToken=req.headers.get("x-rnc-cron-token")||"";
+   if(cronCfg.error||!cronCfg.data||await hash(cronToken)!==cronCfg.data.token_hash)return reply({error:"Token de agendamento inválido."},401);
+   const resendKey=Deno.env.get("RESEND_API_KEY");
+   if(!resendKey)return reply({error:"RESEND_API_KEY não está configurada no Supabase."},503);
+   const dateParts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+   const dateMap=Object.fromEntries(dateParts.map(p=>[p.type,p.value]));
+   const today=dateMap.year+"-"+dateMap.month+"-"+dateMap.day;
+   const [year,month,day]=today.split("-").map(Number);
+   const horizon=new Date(Date.UTC(year,month-1,day+3)).toISOString().slice(0,10);
+   const records=await db.from("rnc_registros").select("id,numero,numero_os,cliente,status,emissor,setor_responsavel,acao_corretiva_1,prazo_corretiva_1,acao_corretiva_2,prazo_corretiva_2,acao_corretiva_3,prazo_corretiva_3,plano_acao_1,prazo_plano_1,plano_acao_2,prazo_plano_2,plano_acao_3,prazo_plano_3").in("status",["Aberta","Em Andamento","Aguardando Verificação"]).limit(500);
+   if(records.error)throw records.error;
+   const ids=(records.data||[]).map((r:any)=>r.id);
+   const actions=ids.length?await db.from("rnc_acoes").select("rnc_id,tipo,descricao,responsavel,prazo,status").in("rnc_id",ids).in("status",["Pendente","Em andamento"]):{data:[],error:null};
+   if(actions.error)throw actions.error;
+   const alerts:any[]=[];
+   const add=(r:any,type:string,description:string,due:any,responsible:string|null)=>{
+    const date=String(due||"").slice(0,10);
+    if(description&&date&&date<=horizon)alerts.push({numero:r.numero,os:r.numero_os,cliente:r.cliente,status:r.status,type,description,responsible,due:date,overdue:date<today});
+   };
+   for(const r of (records.data||[])){
+    for(let i=1;i<=3;i++){
+     add(r,"Ação corretiva",r["acao_corretiva_"+i],r["prazo_corretiva_"+i],r.setor_responsavel||null);
+     add(r,"Plano de ação",r["plano_acao_"+i],r["prazo_plano_"+i],r.setor_responsavel||null);
+    }
+   }
+   const byId=new Map((records.data||[]).map((r:any)=>[r.id,r]));
+   for(const a of (actions.data||[])){const r=byId.get(a.rnc_id);if(r)add(r,a.tipo+" (ação)",a.descricao,a.prazo,a.responsavel);}
+   if(!alerts.length)return reply({ok:true,sent:false,count:0,message:"Nenhuma ação vencida ou com vencimento nos próximos 3 dias."});
+   const lines=alerts.map(a=>"RNC "+(a.numero||"—")+" · OS "+(a.os||"—")+" · "+(a.cliente||"Cliente não informado")+"\n"+(a.overdue?"VENCIDA":"VENCE EM BREVE")+" — "+a.type+": "+a.description+"\nResponsável: "+(a.responsible||"Não definido")+" · Prazo: "+a.due+" · Status RNC: "+a.status);
+   const mailFrom=Deno.env.get("MAIL_FROM")||"FELJ Teste <onboarding@resend.dev>";
+   const er=await fetch("https://api.resend.com/emails",{method:"POST",headers:{"Authorization":"Bearer "+resendKey,"Content-Type":"application/json"},body:JSON.stringify({from:mailFrom,to:["pcp@felj.com.br"],subject:"FELJ | Alertas de prazo de RNC",text:"Atenção: existem ações vencidas ou com vencimento nos próximos 3 dias.\n\n"+lines.join("\n\n")})});
+   const ej=await er.json().catch(()=>({}));
+   if(!er.ok)return reply({error:"Falha ao enviar o resumo de prazos.",detail:ej?.message||"Verifique o remetente configurado."},502);
+   return reply({ok:true,sent:true,count:alerts.length,recipient:"pcp@felj.com.br",id:ej?.id||null});
+  }
   const cfg=await db.from("rnc_access_config").select("team_pin_hash,admin_pin_hash").eq("id",1).single();
   if(cfg.error||!cfg.data)return reply({error:"Configuração de acesso indisponível"},503);
   if(typeof b.pin!=="string"||await hash(b.pin)!==cfg.data.team_pin_hash)return reply({error:"Código de acesso inválido"},401);
