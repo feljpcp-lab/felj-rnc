@@ -216,8 +216,11 @@ const grid=document.createElement("div");grid.className="grid compact-grid";
 const optionalRegistro=new Set(["codigo_cliente","codigo_desenho_peca_lote","emissor","disposicao","horas_retrabalho","maquina_equipamento","custo_estimado"]);
 const advanced=document.createElement("details");advanced.className="optional-group";const summary=document.createElement("summary");summary.textContent="＋ Informações complementares (opcional)";advanced.append(summary);
 const advancedGrid=document.createElement("div");advancedGrid.className="grid compact-grid";
-tab.ids.forEach(id=>{for(const sec of sections){const f=sec[1].find(x=>x[0]===id);if(f){const field=makeField(f);if(tab.id==="registro"&&optionalRegistro.has(id))advancedGrid.append(field);else grid.append(field);break}}});
-if(tab.id==="registro"){advanced.append(advancedGrid);page.append(grid,advanced)}else page.append(grid);
+const closure=document.createElement("details");closure.className="optional-group";const closureSummary=document.createElement("summary");closureSummary.textContent="＋ Verificação de eficácia e encerramento";closure.append(closureSummary);
+const closureGrid=document.createElement("div");closureGrid.className="grid compact-grid";
+const closureIds=new Set(["acao_eficaz","data_encerramento","responsavel_encerramento","observacoes_encerramento"]);
+tab.ids.forEach(id=>{for(const sec of sections){const f=sec[1].find(x=>x[0]===id);if(f){const field=makeField(f);if(tab.id==="registro"&&optionalRegistro.has(id))advancedGrid.append(field);else if(tab.id==="acoes"&&closureIds.has(id))closureGrid.append(field);else grid.append(field);break}}});
+if(tab.id==="registro"){advanced.append(advancedGrid);page.append(grid,advanced)}else if(tab.id==="acoes"){closure.append(closureGrid);page.append(grid,closure)}else page.append(grid);
 if(tab.id==="acoes"){
  const box=document.createElement("div");box.className="action-manager";box.id="actionManager";
  const head=document.createElement("div");head.className="section-heading";
