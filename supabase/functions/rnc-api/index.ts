@@ -81,12 +81,12 @@ Deno.serve(async(req:Request)=>{
     const hasPlan=[1,2,3].some(i=>String(r["plano_acao_"+i]||"").trim()&&String(r["prazo_plano_"+i]||"").trim());
     if(missing.length||!hasPlan)return reply({error:"Para avançar para verificação ou concluir, preencha os 5 Porquês, a causa raiz e pelo menos uma ação do plano com prazo."},400);
    }
-   if(r.status==="Concluída"){
-    if(!r.acao_eficaz||!r.data_encerramento||!String(r.responsavel_encerramento||"").trim())return reply({error:"Para concluir, informe a eficácia, a data e o responsável pelo encerramento."},400);
-    const pending=await db.from("rnc_acoes").select("id,status").eq("rnc_id",b.id||"00000000-0000-0000-0000-000000000000").in("status",["Pendente","Em andamento"]);
+   if(["Aguardando Verificação","Concluída"].includes(r.status)&&b.id){
+    const pending=await db.from("rnc_acoes").select("id,status").eq("rnc_id",b.id).in("status",["Pendente","Em andamento"]);
     if(pending.error)throw pending.error;
-    if((pending.data||[]).length)return reply({error:"Não é possível encerrar a RNC enquanto houver ações pendentes ou em andamento. Conclua ou cancele todas as ações primeiro."},409);
+    if((pending.data||[]).length)return reply({error:"Não é possível avançar a RNC enquanto houver ações pendentes ou em andamento. Conclua ou cancele todas as ações primeiro."},409);
    }
+   if(r.status==="Concluída"&&(!r.acao_eficaz||!r.data_encerramento||!String(r.responsavel_encerramento||"").trim()))return reply({error:"Para concluir, informe a eficácia, a data e o responsável pelo encerramento."},400);
    if(!isAdmin)delete r.custo_estimado;
    let q;if(b.id)q=await db.from("rnc_registros").update({...r,updated_at:new Date().toISOString()}).eq("id",b.id).select().single();else q=await db.from("rnc_registros").insert(r).select().single();
    if(q.error)throw q.error;
