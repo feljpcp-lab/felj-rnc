@@ -266,7 +266,7 @@ async function removeAttachment(id){if(!confirm("Remover este anexo?"))return;tr
 function localDateISO(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
 function dateBR(s){if(!s)return "—";const p=String(s).slice(0,10).split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:s}
 function actionDeadlines(r){
- const items=[],today=localDateISO(),horizon=new Date(today+"T00:00:00");horizon.setDate(horizon.getDate()+3);const limit=horizon.toISOString().slice(0,10);
+ const items=[],today=localDateISO(),horizon=new Date(today+"T00:00:00");horizon.setDate(horizon.getDate()+3);const limit=horizon.getFullYear()+"-"+String(horizon.getMonth()+1).padStart(2,"0")+"-"+String(horizon.getDate()).padStart(2,"0");
  const add=(type,desc,due)=>{const date=String(due||"").slice(0,10);if(desc&&date&&date<=limit)items.push({type,desc,due,overdue:date<today})};
  if(!["Concluída","Cancelada"].includes(r.status)){
   for(let i=1;i<=3;i++){
