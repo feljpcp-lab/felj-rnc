@@ -10,7 +10,69 @@
  .panel,.stat,.item{box-shadow:none!important;break-inside:avoid}
  #records{gap:8px}
  .item{border:1px solid #bbb}
-}</style></head><body>
+}
+/* FELJ RNC — painel visual renovado */
+:root{--navy:#102846;--blue:#24558a;--orange:#f28b20;--bg:#eef2f7;--line:#d8e1ec;--text:#172b42;--muted:#63758b}
+body{background:linear-gradient(180deg,#eaf0f7 0,#f5f7fa 260px);color:var(--text)}
+header{min-height:78px;padding:14px max(24px,calc((100% - 1400px)/2));box-shadow:0 4px 18px #10284618;border-bottom:4px solid var(--orange)}
+.logo{min-width:58px;min-height:48px;display:grid;place-items:center;letter-spacing:.3px;box-shadow:0 3px 8px #071a2c30}
+h1{font-size:20px;letter-spacing:-.35px}
+header p{font-size:12px;letter-spacing:.1px}
+main{max-width:1440px;margin:28px auto;padding:0 26px}
+#app>div:first-child{padding:4px 0 14px}
+#app>div:first-child h2{font-size:25px;letter-spacing:-.6px;margin-bottom:4px}
+#app>div:first-child .muted{font-size:13px}
+.panel,.stat,.item{border:1px solid #d9e2ed;border-radius:14px;box-shadow:0 3px 12px #19395a08}
+.panel{padding:20px;margin-bottom:18px}
+#app>.panel:first-of-type{padding:16px 20px;background:linear-gradient(110deg,#fff 0%,#f9fbfe 100%);border-left:4px solid var(--orange)}
+button{border-radius:9px;transition:transform .15s ease,box-shadow .15s ease,filter .15s ease}
+button:hover{filter:brightness(.98);box-shadow:0 4px 12px #142c4d1c;transform:translateY(-1px)}
+button.orange{background:var(--orange);color:#172b42}
+.stats{gap:14px;margin:18px 0}
+.stat{padding:18px 19px;position:relative;overflow:hidden;background:#fff}
+.stats:not(.analytics-stats) .stat:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#9bb2cb}
+.stats:not(.analytics-stats) .stat:nth-child(2):before{background:#e6a04b}
+.stats:not(.analytics-stats) .stat:nth-child(3):before{background:#4c88bd}
+.stats:not(.analytics-stats) .stat:nth-child(4):before{background:#7d91b0}
+.stats:not(.analytics-stats) .stat:nth-child(5):before{background:#d9776c}
+.stat span{font-size:12px;letter-spacing:.1px}
+.stat strong{font-size:29px;letter-spacing:-.7px}
+#analyticsPanel{padding:22px}
+#analyticsPanel>.section-heading h2{font-size:21px;letter-spacing:-.4px}
+#analyticsPanel>.section-heading p{margin:6px 0 0}
+.analytics-filters{padding:14px;background:#f6f8fb;border:1px solid #e5ebf2;border-radius:12px}
+.analytics-filters input,.analytics-filters select{background:#fff;min-height:42px}
+.analytics-stats{gap:12px}
+.analytics-stats .stat{padding:16px 17px;min-height:82px}
+.analytics-stats .stat strong{font-size:23px}
+.analytics-grid{gap:14px}
+.chart-panel{background:#fbfcfe;border-color:#e1e8f0;min-height:230px}
+.chart-panel h3{font-size:13px;text-transform:uppercase;letter-spacing:.45px}
+.bar-track{height:9px;background:#e8eef5}
+.bar-fill{background:linear-gradient(90deg,#24558a,#4e83b8)}
+#overduePanel{border-left:4px solid #d9776c}
+.toolbar{gap:9px}
+.toolbar input,.toolbar select{min-height:40px}
+.item{padding:17px}
+.modal-card{border:1px solid #d8e1ec;box-shadow:0 24px 70px #071a2c40}
+@media(max-width:760px){
+ header{padding:12px 16px}
+ main{margin:18px auto;padding:0 14px}
+ #app>div:first-child h2{font-size:21px}
+ #analyticsPanel{padding:15px}
+ .stats{gap:9px}
+ .stat{padding:14px}
+ .stat strong{font-size:24px}
+}
+@media(max-width:500px){
+ header .brand{gap:9px}
+ h1{font-size:16px}
+ header p{font-size:11px}
+ main{padding:0 10px}
+ .panel{padding:14px}
+}
+
+</style></head><body>
 <header><div class="brand"><div class="logo">FELJ</div><div><h1>Gestão de Não Conformidades</h1><p>Sistema da Qualidade · Registro e acompanhamento de RNC</p></div></div><span>USO INTERNO</span></header>
 <main>
 <section id="gate" class="panel" style="max-width:460px;margin:50px auto"><h2>Acesso da equipe FELJ</h2><p class="muted">Informe o código compartilhado da equipe para acessar as RNCs.</p><form id="gateForm"><label for="pin">Código de acesso</label><input id="pin" type="password" required autocomplete="current-password" placeholder="Código da equipe"><button class="orange" id="enter" style="width:100%;margin-top:12px">Entrar no sistema</button></form><div id="gateMsg" class="notice hidden"></div></section>
