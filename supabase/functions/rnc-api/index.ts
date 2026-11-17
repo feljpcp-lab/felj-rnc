@@ -62,6 +62,49 @@ Deno.serve(async(req:Request)=>{
    if(!b.id)return reply({error:"Ação não informada."},400);
    const q=await db.from("rnc_acoes").delete().eq("id",b.id);if(q.error)throw q.error;return reply({data:true});
   }
+  if(b.action==="attachmentsList"){
+   if(!b.rncId)return reply({error:"RNC não informada."},400);
+   const q=await db.from("rnc_anexos").select("*").eq("rnc_id",b.rncId).order("criado_em",{ascending:false});
+   if(q.error)throw q.error;
+   const data=await Promise.all((q.data||[]).map(async(a:any)=>{
+    const signed=await db.storage.from("rnc-anexos").createSignedUrl(a.storage_path,3600);
+    return {...a,signed_url:signed.data?.signedUrl||null};
+   }));
+   return reply({data});
+  }
+  if(b.action==="uploadAttachment"){
+   if(!b.rncId)return reply({error:"RNC não informada."},400);
+   const allowed=["image/jpeg","image/png","image/webp","application/pdf"];
+   const contentType=String(b.contentType||"").toLowerCase();
+   if(!allowed.includes(contentType))return reply({error:"Formato não permitido. Envie JPG, PNG, WEBP ou PDF."},400);
+   const encoded=String(b.fileBase64||"").replace(/^data:[^,]+,/, "");
+   if(!encoded||encoded.length>11200000)return reply({error:"Arquivo vazio ou maior que o limite de 8 MB."},413);
+   let bytes:Uint8Array;
+   try{const binary=atob(encoded);bytes=Uint8Array.from(binary,(c)=>c.charCodeAt(0));}catch{return reply({error:"Não foi possível ler o arquivo enviado."},400);}
+   if(bytes.length===0||bytes.length>8388608)return reply({error:"Cada anexo deve ter no máximo 8 MB."},413);
+   const parent=await db.from("rnc_registros").select("id").eq("id",b.rncId).single();
+   if(parent.error||!parent.data)return reply({error:"RNC não encontrada. Salve a RNC antes de anexar arquivos."},404);
+   const original=String(b.fileName||"anexo").split(/[\\/]/).pop()||"anexo";
+   const safeName=original.normalize("NFKC").replace(/[^\\p{L}\\p{N}._-]+/gu,"_").slice(0,120)||"anexo";
+   const storagePath=b.rncId+"/"+crypto.randomUUID()+"_"+safeName;
+   const upload=await db.storage.from("rnc-anexos").upload(storagePath,bytes,{contentType,upsert:false,cacheControl:"3600"});
+   if(upload.error)throw upload.error;
+   const saved=await db.from("rnc_anexos").insert({rnc_id:b.rncId,nome_arquivo:safeName,content_type:contentType,tamanho_bytes:bytes.length,storage_path:storagePath,enviado_por:String(b.uploadedBy||"").trim().slice(0,120)||null}).select().single();
+   if(saved.error){await db.storage.from("rnc-anexos").remove([storagePath]);throw saved.error;}
+   const signed=await db.storage.from("rnc-anexos").createSignedUrl(storagePath,3600);
+   return reply({data:{...saved.data,signed_url:signed.data?.signedUrl||null}});
+  }
+  if(b.action==="attachmentDelete"){
+   if(!isAdmin)return reply({error:"Somente o administrador pode remover anexos."},403);
+   if(!b.id)return reply({error:"Anexo não informado."},400);
+   const item=await db.from("rnc_anexos").select("id,storage_path").eq("id",b.id).single();
+   if(item.error||!item.data)return reply({error:"Anexo não encontrado."},404);
+   const removed=await db.storage.from("rnc-anexos").remove([item.data.storage_path]);
+   if(removed.error)throw removed.error;
+   const deleted=await db.from("rnc_anexos").delete().eq("id",b.id);
+   if(deleted.error)throw deleted.error;
+   return reply({data:true});
+  }
   if(b.action==="history"){
    if(!b.rncId)return reply({error:"RNC não informada."},400);
    const q=await db.from("rnc_historico").select("*").eq("rnc_id",b.rncId).order("ocorrido_em",{ascending:false}).limit(100);
@@ -101,7 +144,14 @@ Deno.serve(async(req:Request)=>{
    }
    return reply({data:q.data,notification});
   }
-  if(b.action==="delete"){if(!isAdmin)return reply({error:"Somente o administrador pode excluir registros."},403);const q=await db.from("rnc_registros").delete().eq("id",b.id);if(q.error)throw q.error;return reply({data:true});}
+  if(b.action==="delete"){
+   if(!isAdmin)return reply({error:"Somente o administrador pode excluir registros."},403);
+   if(!b.id)return reply({error:"RNC não informada."},400);
+   const attachments=await db.from("rnc_anexos").select("storage_path").eq("rnc_id",b.id);
+   if(attachments.error)throw attachments.error;
+   if((attachments.data||[]).length){const removed=await db.storage.from("rnc-anexos").remove(attachments.data.map((a:any)=>a.storage_path));if(removed.error)throw removed.error;}
+   const q=await db.from("rnc_registros").delete().eq("id",b.id);if(q.error)throw q.error;return reply({data:true});
+  }
   return reply({error:"Ação inválida"},400);
  }catch(e){return reply({error:e?.message||"Erro interno"},500)}
 });
