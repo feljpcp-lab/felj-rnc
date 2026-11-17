@@ -18,9 +18,10 @@ Identificação e OS, cliente, desenho/peça/lote, emissor, componente, categori
 
 - Frontend estático: `index.html`
 - Banco: Supabase PostgreSQL, tabela `rnc_registros`
-- API protegida por código: Supabase Edge Function `rnc-api`
+- API protegida por código: Supabase Edge Function `rnc-api` (código versionado em `supabase/functions/rnc-api/index.ts`)
+- Migrações do banco: `supabase/migrations/`
 - Não há contas individuais; o código compartilhado fica apenas na função do servidor, não no código HTML público.
 
 ## Segurança operacional
 
-Compartilhe o código somente com a equipe autorizada. Se houver suspeita de divulgação, altere o código na função `rnc-api` e publique uma nova versão. Como o acesso é compartilhado, não existe rastreabilidade individual de quem fez cada alteração.
+Compartilhe o código somente com a equipe autorizada. Se houver suspeita de divulgação, altere o código na função `rnc-api` e publique uma nova versão. Como o acesso ainda é feito por código compartilhado, a rastreabilidade individual de quem fez cada alteração não está habilitada. A próxima evolução recomendada é migrar para contas individuais, sem interromper o acesso atual até a equipe estar cadastrada.
