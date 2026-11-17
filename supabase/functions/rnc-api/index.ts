@@ -37,14 +37,25 @@ Deno.serve(async(req:Request)=>{
   }
   if(b.action==="actionSave"){
    const a={...(b.actionRecord||{})}; const id=a.id;
-   delete a.id;delete a.criado_em;delete a.atualizado_em;delete a.rnc_id;
+   delete a.id;delete a.criado_em;delete a.atualizado_em;delete a.rnc_id;delete a.concluida_em;
    if(!b.rncId)return reply({error:"RNC não informada."},400);
-   if(!String(a.descricao||"").trim())return reply({error:"Descreva a ação."},400);
+   const descricao=String(a.descricao||"").trim(),responsavel=String(a.responsavel||"").trim();
+   if(!descricao)return reply({error:"Descreva a ação."},400);
+   if(!responsavel)return reply({error:"Informe o responsável pela ação."},400);
+   if(!a.prazo)return reply({error:"Informe o prazo da ação."},400);
    if(!["Corretiva","Preventiva"].includes(a.tipo))return reply({error:"Tipo de ação inválido."},400);
    if(!["Pendente","Em andamento","Concluída","Cancelada"].includes(a.status))return reply({error:"Status de ação inválido."},400);
-   const payload={...a,rnc_id:b.rncId,descricao:String(a.descricao).trim()};
+   if(a.status==="Concluída"&&!String(a.evidencia||"").trim())return reply({error:"Registre a evidência antes de concluir a ação."},400);
+   const parent=await db.from("rnc_registros").select("id,status").eq("id",b.rncId).single();
+   if(parent.error||!parent.data)return reply({error:"RNC não encontrada."},404);
+   const payload={...a,rnc_id:b.rncId,descricao,responsavel};
    const q=id?await db.from("rnc_acoes").update(payload).eq("id",id).eq("rnc_id",b.rncId).select().single():await db.from("rnc_acoes").insert(payload).select().single();
-   if(q.error)throw q.error; return reply({data:q.data});
+   if(q.error)throw q.error;
+   if(["Concluída","Aguardando Verificação"].includes(parent.data.status)&&!["Concluída","Cancelada"].includes(a.status)){
+    const reopen=await db.from("rnc_registros").update({status:"Em Andamento",updated_at:new Date().toISOString()}).eq("id",b.rncId);
+    if(reopen.error)throw reopen.error;
+   }
+   return reply({data:q.data});
   }
   if(b.action==="actionDelete"){
    if(!isAdmin)return reply({error:"Somente o administrador pode remover ações."},403);
@@ -57,8 +68,25 @@ Deno.serve(async(req:Request)=>{
    if(q.error)throw q.error;return reply({data:q.data||[]});
   }
   if(b.action==="save"){
-   const r={...(b.record||{})};delete r.numero;delete r.criado_em;delete r.atualizado_em;delete r.data_ocorrencia;delete r.id;delete r.created_at;delete r.updated_at;
+   const r={...(b.record||{})};delete r.numero;delete r.criado_em;delete r.atualizado_em;delete r.data_ocorrencia;delete r.id;delete r.created_at;delete r.updated_at;delete r.created_by;delete r.updated_by;
+   r.descricao=String(r.descricao||"").trim();
+   r.emissor=String(r.emissor||"").trim();
+   r.disposicao=String(r.disposicao||"").trim();
    if(!r.descricao)return reply({error:"A descrição da não conformidade é obrigatória."},400);
+   if(!r.emissor)return reply({error:"Informe quem abriu a RNC."},400);
+   if(!["SUCATEADO","LIBERADO S/ RETRABALHO","LIBERADO C/ RETRABALHO"].includes(r.disposicao))return reply({error:"Selecione uma disposição válida para a peça."},400);
+   if(!["Aberta","Em Andamento","Aguardando Verificação","Concluída"].includes(r.status||"Aberta"))return reply({error:"Status da RNC inválido."},400);
+   if(["Aguardando Verificação","Concluída"].includes(r.status)){
+    const missing=["porque_1","porque_2","porque_3","porque_4","porque_5","causa_raiz"].filter(k=>!String(r[k]||"").trim());
+    const hasPlan=[1,2,3].some(i=>String(r["plano_acao_"+i]||"").trim()&&String(r["prazo_plano_"+i]||"").trim());
+    if(missing.length||!hasPlan)return reply({error:"Para avançar para verificação ou concluir, preencha os 5 Porquês, a causa raiz e pelo menos uma ação do plano com prazo."},400);
+   }
+   if(r.status==="Concluída"){
+    if(!r.acao_eficaz||!r.data_encerramento||!String(r.responsavel_encerramento||"").trim())return reply({error:"Para concluir, informe a eficácia, a data e o responsável pelo encerramento."},400);
+    const pending=await db.from("rnc_acoes").select("id,status").eq("rnc_id",b.id||"00000000-0000-0000-0000-000000000000").in("status",["Pendente","Em andamento"]);
+    if(pending.error)throw pending.error;
+    if((pending.data||[]).length)return reply({error:"Não é possível encerrar a RNC enquanto houver ações pendentes ou em andamento. Conclua ou cancele todas as ações primeiro."},409);
+   }
    if(!isAdmin)delete r.custo_estimado;
    let q;if(b.id)q=await db.from("rnc_registros").update({...r,updated_at:new Date().toISOString()}).eq("id",b.id).select().single();else q=await db.from("rnc_registros").insert(r).select().single();
    if(q.error)throw q.error;
