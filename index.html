@@ -156,11 +156,19 @@ button.secondary{background:#edf2f7;color:#203c5b}
 @media(max-width:420px){.app-topline{align-items:flex-start}.app-topline #new{padding:9px 10px;font-size:12px}.analytics-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* Áreas administrativas restritas */\n.sidebar-nav button.hidden{display:none!important}\n#adminAccessPanel{display:flex}\n.optional-group{grid-column:span 3;border:1px solid var(--line);border-radius:10px;padding:12px;background:#f8fafc}.optional-group summary{cursor:pointer;font-weight:800;color:var(--blue);padding:4px}.optional-group .grid{margin-top:12px}.optional-group[open]{background:#fff}.form-page .grid{margin-bottom:10px}@media(max-width:760px){.optional-group{grid-column:span 2}}@media(max-width:500px){.optional-group{grid-column:span 1}}
-/* Ajustes finais mobile e plano de ação unificado */
+/* Ajustes finais mobile e abertura simplificada */
 .legacy-actions{margin:12px 0 4px;background:#f7f9fc}.legacy-actions summary{color:#52677d}.legacy-actions .grid{margin-top:12px}
 .action-manager{border:1px solid #cfdbe8;background:#f8fafc}.action-manager>.section-heading{align-items:flex-start}.action-manager>.section-heading h3{font-size:16px}.action-manager>.section-heading p{margin:4px 0 0;font-size:12px;max-width:620px}
 @media(max-width:680px){.app-content{min-width:0}.app-topline{flex-wrap:wrap}.app-topline #new{flex:0 0 auto}.toolbar{display:grid;grid-template-columns:1fr}.toolbar input,.toolbar select{max-width:none;width:100%}.analytics-filters{display:grid;grid-template-columns:1fr 1fr}.analytics-filters label{min-width:0}.form-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.form-tab{min-height:42px}.form-step-controls{width:100%;justify-content:space-between}.form-step-controls button{flex:1}.modal{padding:5px}.modal-card{width:100%;max-height:calc(100dvh - 10px);padding:12px}.modal-card form{overflow:auto}.actions{flex-wrap:wrap}.actions button{flex:1}.action-manager>.section-heading{flex-direction:column}.action-manager>.section-heading button{width:100%}.item{min-width:0}.item>div{min-width:0;overflow-wrap:anywhere}}
 @media(max-width:380px){header{padding:10px}.brand{gap:7px}.logo{min-width:48px;min-height:42px;padding:7px}.app-content{padding:14px 9px 24px}.analytics-filters{grid-template-columns:1fr}.stats .stat strong{font-size:22px!important}.form-tab{font-size:10px}.panel{padding:12px}}
+
+/* Formulário simplificado: foco nos quatro campos de abertura */
+#page-registro>.page-intro{background:#eef5fb;border-left:3px solid var(--blue)}
+#page-registro>.grid .field:has(#descricao){grid-column:1/-1}
+#page-registro>.grid .field:has(#descricao) textarea{min-height:110px}
+#page-registro>.grid .field label{font-size:13px}
+.optional-group>summary{font-size:13px}
+@media(max-width:680px){#page-registro>.grid{grid-template-columns:1fr}#page-registro>.grid .field{grid-column:1/-1}}
 </style></head><body>
 <header><div class="brand"><div class="logo">FELJ</div><div><h1>Gestão de Não Conformidades</h1><p>Sistema da Qualidade · Registro e acompanhamento de RNC</p></div></div><span>USO INTERNO</span></header>
 <main>
@@ -181,7 +189,7 @@ const sections=[
 ["4. Impacto financeiro e tempo de máquina",[["horas_retrabalho","Horas de retrabalho (homem/máquina)","number"],["custo_estimado","Custo estimado (R$)","number"],["maquina_equipamento","Máquina / equipamento","text"]]],
 ["5. Disposição da peça",[["disposicao","Disposição da peça","select",true,["SUCATEADO","LIBERADO S/ RETRABALHO","LIBERADO C/ RETRABALHO"]]]],
 ["6. Setor onde foi encontrado × setor responsável",[["setor_encontrou","Setor que encontrou","select",false,["COMERCIAL","PROJETO","PROG (P) / SIMUL. (S)","TORNO","CTU","FRESA","RETÍFICA","FIO","E. PENET","PREP."]],["setor_responsavel","Setor responsável","select",false,["COMERCIAL","PROJETO","PROG (P) / SIMUL. (S)","TORNO","CTU","FRESA","RETÍFICA","FIO","E. PENET","PREP."]]]],
-["7. Descrição e ações corretivas",[["descricao","Descrição detalhada da não conformidade","textarea",true,"wide"],["acao_corretiva_1","1ª ação corretiva","text","wide"],["prazo_corretiva_1","Prazo da 1ª ação","date"],["acao_corretiva_2","2ª ação corretiva","text","wide"],["prazo_corretiva_2","Prazo da 2ª ação","date"],["acao_corretiva_3","3ª ação corretiva","text","wide"],["prazo_corretiva_3","Prazo da 3ª ação","date"]]],
+["7. Descrição e ações corretivas",[["descricao","O que aconteceu?","textarea",true,"wide"],["acao_corretiva_1","1ª ação corretiva","text","wide"],["prazo_corretiva_1","Prazo da 1ª ação","date"],["acao_corretiva_2","2ª ação corretiva","text","wide"],["prazo_corretiva_2","Prazo da 2ª ação","date"],["acao_corretiva_3","3ª ação corretiva","text","wide"],["prazo_corretiva_3","Prazo da 3ª ação","date"]]],
 ["8. Análise de causa raiz — 5 Porquês",[["porque_1","1º Por quê?","textarea",false,"wide"],["porque_2","2º Por quê?","textarea",false,"wide"],["porque_3","3º Por quê?","textarea",false,"wide"],["porque_4","4º Por quê?","textarea",false,"wide"],["porque_5","5º Por quê?","textarea",false,"wide"],["causa_raiz","Causa raiz identificada","textarea",false,"wide"]]],
 ["9. Plano de ação — ações preventivas",[["plano_acao_1","1º plano de ação","text","wide"],["prazo_plano_1","Prazo do plano 1","date"],["plano_acao_2","2º plano de ação","text","wide"],["prazo_plano_2","Prazo do plano 2","date"],["plano_acao_3","3º plano de ação","text","wide"],["prazo_plano_3","Prazo do plano 3","date"]]],
 ["10. Aprovações e assinaturas",[["lider_setor_localizado","Líder do setor localizado","text"],["lider_setor_responsavel","Líder do setor responsável","text"]]],
@@ -193,9 +201,9 @@ async function api(action,extra={}){const r=await fetch(API,{method:"POST",heade
 function buildForm(){
 const host=$("fields");host.className="form-workspace";
 const tabs=[
-{ id:"registro",title:"1 · Registrar",hint:"Comece pelo essencial: onde ocorreu, qual peça foi afetada e o que aconteceu. A análise pode ser preenchida depois.",ids:["data_registro","origem","numero_os","cliente","componente","outro_componente","categoria","categoria_outros","setor_encontrou","descricao","codigo_cliente","codigo_desenho_peca_lote","emissor","disposicao","horas_retrabalho","maquina_equipamento","custo_estimado"]},
-{ id:"analise",title:"2 · Investigar",hint:"Registre os 5 Porquês e identifique a causa raiz. Esta etapa pode ser completada após a abertura da RNC.",ids:["porque_1","porque_2","porque_3","porque_4","porque_5","causa_raiz"]},
-{ id:"acoes",title:"3 · Tratar e acompanhar",hint:"Defina o setor responsável, as ações e os prazos. O encerramento só deve ocorrer após verificar a eficácia.",ids:["setor_responsavel","acao_corretiva_1","prazo_corretiva_1","acao_corretiva_2","prazo_corretiva_2","acao_corretiva_3","prazo_corretiva_3","plano_acao_1","prazo_plano_1","plano_acao_2","prazo_plano_2","plano_acao_3","prazo_plano_3","lider_setor_localizado","lider_setor_responsavel","status","acao_eficaz","data_encerramento","responsavel_encerramento","observacoes_encerramento"]}
+{ id:"registro",title:"1 · Abrir RNC",hint:"Preencha somente estes quatro campos para registrar a ocorrência. As demais informações podem ser incluídas depois, se necessário.",ids:["data_registro","origem","numero_os","cliente","componente","outro_componente","categoria","categoria_outros","setor_encontrou","descricao","codigo_cliente","codigo_desenho_peca_lote","emissor","disposicao","horas_retrabalho","maquina_equipamento","custo_estimado"]},
+{ id:"analise",title:"2 · Análise (depois)",hint:"Esta etapa não precisa ser preenchida na abertura. O responsável pela análise pode completá-la posteriormente.",ids:["porque_1","porque_2","porque_3","porque_4","porque_5","causa_raiz"]},
+{ id:"acoes",title:"3 · Ações (depois)",hint:"Cadastre somente as ações necessárias, com responsável e prazo. A verificação fica para quando o tratamento terminar.",ids:["setor_responsavel","acao_corretiva_1","prazo_corretiva_1","acao_corretiva_2","prazo_corretiva_2","acao_corretiva_3","prazo_corretiva_3","plano_acao_1","prazo_plano_1","plano_acao_2","prazo_plano_2","plano_acao_3","prazo_plano_3","lider_setor_localizado","lider_setor_responsavel","status","acao_eficaz","data_encerramento","responsavel_encerramento","observacoes_encerramento"]}
 ];
 const nav=document.createElement("div");nav.className="form-tabs";nav.setAttribute("role","tablist");
 const pages=document.createElement("div");pages.className="form-pages";
@@ -208,7 +216,7 @@ if(type==="select"){el=document.createElement("select");el.add(new Option("Selec
 else if(type==="textarea"){el=document.createElement("textarea");el.rows=id==="descricao"?3:2}
 else{el=document.createElement("input");el.type=type==="number"?"number":type;if(type==="number"){el.min="0";el.step=id==="custo_estimado"?"0.01":"0.1"}}
 el.id=id;if(required===true)el.required=true;
-if(id==="descricao")el.placeholder="O que aconteceu? Onde foi identificado? Qual foi o problema?";
+if(id==="descricao")el.placeholder="Conte brevemente o que aconteceu e onde o problema foi identificado.";
 if(id.startsWith("porque_"))el.placeholder="Registre a resposta para este porquê";
 if(id.startsWith("acao_corretiva_")||id.startsWith("plano_acao_"))el.placeholder="Descreva a ação de forma objetiva";
 if(id==="custo_estimado"){el.disabled=!sessionStorage.getItem("rnc_admin_pin");el.placeholder=el.disabled?"Preenchimento exclusivo do administrador":"Liberado para administrador";lab.textContent="Custo estimado (R$) · "+(el.disabled?"restrito":"admin autorizado")}
@@ -219,8 +227,8 @@ const b=document.createElement("button");b.type="button";b.className="form-tab"+
 const page=document.createElement("section");page.className="form-page"+(index===0?" active":"");page.id="page-"+tab.id;page.setAttribute("role","tabpanel");
 const heading=document.createElement("div");heading.className="page-intro";const h=document.createElement("strong");h.textContent=tab.title;const p=document.createElement("p");p.textContent=tab.hint;heading.append(h,p);page.append(heading);
 const grid=document.createElement("div");grid.className="grid compact-grid";
-const optionalRegistro=new Set(["codigo_cliente","codigo_desenho_peca_lote","horas_retrabalho","maquina_equipamento","custo_estimado"]);
-const advanced=document.createElement("details");advanced.className="optional-group";const summary=document.createElement("summary");summary.textContent="＋ Informações complementares (opcional)";advanced.append(summary);
+const optionalRegistro=new Set(["origem","numero_os","cliente","componente","outro_componente","categoria","categoria_outros","setor_encontrou","codigo_cliente","codigo_desenho_peca_lote","horas_retrabalho","maquina_equipamento","custo_estimado"]);
+const advanced=document.createElement("details");advanced.className="optional-group";const summary=document.createElement("summary");summary.textContent="＋ Informações complementares (opcional) — cliente, OS, componente, setor e classificação";advanced.append(summary);
 const advancedGrid=document.createElement("div");advancedGrid.className="grid compact-grid";
 const closure=document.createElement("details");closure.className="optional-group";const closureSummary=document.createElement("summary");closureSummary.textContent="＋ Verificação de eficácia e encerramento";closure.append(closureSummary);
 const closureGrid=document.createElement("div");closureGrid.className="grid compact-grid";
@@ -257,7 +265,7 @@ if(tab.id==="encerramento"){const hist=document.createElement("div");hist.classN
 pages.append(page)
 });
 host.append(nav,pages);
-const footer=document.createElement("div");footer.className="form-bottom";const help=document.createElement("span");help.textContent="Preencha o essencial para abrir a RNC. A análise e as ações podem ser completadas depois.";const controls=document.createElement("div");controls.className="form-step-controls";const prev=document.createElement("button");prev.type="button";prev.className="secondary";prev.textContent="← Anterior";prev.id="prevTab";prev.onclick=()=>moveTab(-1);const next=document.createElement("button");next.type="button";next.className="secondary";next.textContent="Próxima →";next.id="nextTab";next.onclick=()=>moveTab(1);controls.append(prev,next);footer.append(help,controls);host.append(footer);
+const footer=document.createElement("div");footer.className="form-bottom";const help=document.createElement("span");help.textContent="Abertura rápida: quatro campos obrigatórios. Complementos, análise e ações podem ser feitos depois.";const controls=document.createElement("div");controls.className="form-step-controls";const prev=document.createElement("button");prev.type="button";prev.className="secondary";prev.textContent="← Anterior";prev.id="prevTab";prev.onclick=()=>moveTab(-1);const next=document.createElement("button");next.type="button";next.className="secondary";next.textContent="Próxima →";next.id="nextTab";next.onclick=()=>moveTab(1);controls.append(prev,next);footer.append(help,controls);host.append(footer);
 let activeIndex=0;
 function activate(id){activeIndex=tabs.findIndex(t=>t.id===id);nav.querySelectorAll(".form-tab").forEach((el,i)=>{el.classList.toggle("active",i===activeIndex);el.setAttribute("aria-selected",i===activeIndex?"true":"false")});pages.querySelectorAll(".form-page").forEach((el,i)=>el.classList.toggle("active",i===activeIndex));prev.disabled=activeIndex===0;next.disabled=activeIndex===tabs.length-1}function updateConditionalFields(){const conditions={outro_componente:()=> $("componente").value==="OUTROS",categoria_outros:()=> $("categoria").value==="Outros"};Object.entries(conditions).forEach(([id,fn])=>{const field=$(id)?.closest(".field");if(field)field.classList.toggle("conditional-hidden",!fn())});}["componente","categoria"].forEach(id=>$(id).addEventListener("change",updateConditionalFields));
 function moveTab(delta){activate(tabs[Math.max(0,Math.min(tabs.length-1,activeIndex+delta))].id)}
