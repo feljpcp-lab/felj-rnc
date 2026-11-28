@@ -153,9 +153,15 @@ Deno.serve(async(req:Request)=>{
    r.emissor=String(r.emissor||"").trim();
    r.disposicao=String(r.disposicao||"").trim();
    r.acao_corretiva_1=String(r.acao_corretiva_1||"").trim();
+   r.cliente=String(r.cliente||"").trim();
+   r.componente=String(r.componente||"").trim();
+   r.setor_encontrou=String(r.setor_encontrou||"").trim();
    if(!r.descricao)return reply({error:"A descrição da não conformidade é obrigatória."},400);
    if(!r.acao_corretiva_1)return reply({error:"Informe a ação corretiva para salvar a RNC."},400);
    if(!r.emissor)return reply({error:"Informe quem abriu a RNC."},400);
+   if(!r.cliente)return reply({error:"Informe o cliente."},400);
+   if(!r.componente)return reply({error:"Selecione o componente."},400);
+   if(!r.setor_encontrou)return reply({error:"Informe o setor que encontrou o problema."},400);
    if(!["SUCATEADO","LIBERADO S/ RETRABALHO","LIBERADO C/ RETRABALHO"].includes(r.disposicao))return reply({error:"Selecione uma disposição válida para a peça."},400);
    if(!["Aberta","Em Andamento","Aguardando Verificação","Concluída"].includes(r.status||"Aberta"))return reply({error:"Status da RNC inválido."},400);
       if(["Aguardando Verificação","Concluída"].includes(r.status)&&b.id){
