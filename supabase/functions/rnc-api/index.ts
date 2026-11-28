@@ -152,16 +152,13 @@ Deno.serve(async(req:Request)=>{
    r.descricao=String(r.descricao||"").trim();
    r.emissor=String(r.emissor||"").trim();
    r.disposicao=String(r.disposicao||"").trim();
+   r.acao_corretiva_1=String(r.acao_corretiva_1||"").trim();
    if(!r.descricao)return reply({error:"A descrição da não conformidade é obrigatória."},400);
+   if(!r.acao_corretiva_1)return reply({error:"Informe a ação corretiva para salvar a RNC."},400);
    if(!r.emissor)return reply({error:"Informe quem abriu a RNC."},400);
    if(!["SUCATEADO","LIBERADO S/ RETRABALHO","LIBERADO C/ RETRABALHO"].includes(r.disposicao))return reply({error:"Selecione uma disposição válida para a peça."},400);
    if(!["Aberta","Em Andamento","Aguardando Verificação","Concluída"].includes(r.status||"Aberta"))return reply({error:"Status da RNC inválido."},400);
-   if(["Aguardando Verificação","Concluída"].includes(r.status)){
-    const missing=["porque_1","porque_2","porque_3","porque_4","porque_5","causa_raiz"].filter(k=>!String(r[k]||"").trim());
-    const hasPlan=[1,2,3].some(i=>String(r["plano_acao_"+i]||"").trim()&&String(r["prazo_plano_"+i]||"").trim());
-    if(missing.length||!hasPlan)return reply({error:"Para avançar para verificação ou concluir, preencha os 5 Porquês, a causa raiz e pelo menos uma ação do plano com prazo."},400);
-   }
-   if(["Aguardando Verificação","Concluída"].includes(r.status)&&b.id){
+      if(["Aguardando Verificação","Concluída"].includes(r.status)&&b.id){
     const pending=await db.from("rnc_acoes").select("id,status").eq("rnc_id",b.id).in("status",["Pendente","Em andamento"]);
     if(pending.error)throw pending.error;
     if((pending.data||[]).length)return reply({error:"Não é possível avançar a RNC enquanto houver ações pendentes ou em andamento. Conclua ou cancele todas as ações primeiro."},409);
