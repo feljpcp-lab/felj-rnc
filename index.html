@@ -173,6 +173,8 @@ button.secondary{background:#edf2f7;color:#203c5b}
 #page-registro>.grid .field label{font-size:13px}
 .optional-group>summary{font-size:13px}
 @media(max-width:680px){#page-registro>.grid{grid-template-columns:1fr}#page-registro>.grid .field{grid-column:1/-1}}
+/* Informações complementares e encerramento sempre expandidos para consulta da produção */
+.optional-group{display:block!important}.optional-group>summary{cursor:default;list-style:none}.optional-group>summary::-webkit-details-marker{display:none}
 </style></head><body>
 <header><div class="brand"><div class="logo">FELJ</div><div><h1>Gestão de Não Conformidades</h1><p>Sistema da Qualidade · Registro e acompanhamento de RNC</p></div></div><span>USO INTERNO</span></header>
 <main>
@@ -233,11 +235,11 @@ const page=document.createElement("section");page.className="form-page"+(index==
 const heading=document.createElement("div");heading.className="page-intro";const h=document.createElement("strong");h.textContent=tab.title;const p=document.createElement("p");p.textContent=tab.hint;heading.append(h,p);page.append(heading);
 const grid=document.createElement("div");grid.className="grid compact-grid";
 const optionalRegistro=new Set(["origem","numero_os","outro_componente","categoria","categoria_outros","codigo_cliente","codigo_desenho_peca_lote","horas_retrabalho","maquina_equipamento","custo_estimado"]);
-const advanced=document.createElement("details");advanced.className="optional-group";const summary=document.createElement("summary");summary.textContent="＋ Informações complementares (opcional) — OS, categoria, máquina e outros detalhes";advanced.append(summary);
+const advanced=document.createElement("details");advanced.className="optional-group";advanced.open=true;const summary=document.createElement("summary");summary.textContent="＋ Informações complementares (opcional) — OS, categoria, máquina e outros detalhes";advanced.append(summary);
 const advancedGrid=document.createElement("div");advancedGrid.className="grid compact-grid";
-const closure=document.createElement("details");closure.className="optional-group";const closureSummary=document.createElement("summary");closureSummary.textContent="＋ Verificação de eficácia e encerramento";closure.append(closureSummary);
+const closure=document.createElement("details");closure.className="optional-group";closure.open=true;const closureSummary=document.createElement("summary");closureSummary.textContent="＋ Verificação de eficácia e encerramento";closure.append(closureSummary);
 const closureGrid=document.createElement("div");closureGrid.className="grid compact-grid";
-const legacyActions=document.createElement("details");legacyActions.className="optional-group legacy-actions";const legacySummary=document.createElement("summary");legacySummary.textContent="Ações de registros antigos (compatibilidade)";legacyActions.append(legacySummary);const legacyGrid=document.createElement("div");legacyGrid.className="grid compact-grid";legacyActions.append(legacyGrid);
+const legacyActions=document.createElement("details");legacyActions.className="optional-group legacy-actions";legacyActions.open=true;const legacySummary=document.createElement("summary");legacySummary.textContent="Ações de registros antigos (compatibilidade)";legacyActions.append(legacySummary);const legacyGrid=document.createElement("div");legacyGrid.className="grid compact-grid";legacyActions.append(legacyGrid);
 const legacyActionIds=new Set(["prazo_corretiva_1","acao_corretiva_2","prazo_corretiva_2","acao_corretiva_3","prazo_corretiva_3","plano_acao_1","prazo_plano_1","plano_acao_2","prazo_plano_2","plano_acao_3","prazo_plano_3"]);
 const closureIds=new Set(["acao_eficaz","data_encerramento","responsavel_encerramento","observacoes_encerramento"]);
 tab.ids.forEach(id=>{for(const sec of sections){const f=sec[1].find(x=>x[0]===id);if(f){const field=makeField(f);if(tab.id==="registro"&&optionalRegistro.has(id))advancedGrid.append(field);else if(tab.id==="acoes"&&legacyActionIds.has(id))legacyGrid.append(field);else if(tab.id==="acoes"&&closureIds.has(id))closureGrid.append(field);else grid.append(field);break}}});
