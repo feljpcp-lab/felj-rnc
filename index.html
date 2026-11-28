@@ -219,7 +219,7 @@ let el;
 if(type==="select"){el=document.createElement("select");el.add(new Option("Selecione",""));(opts||[]).forEach(o=>el.add(new Option(o,o)))}
 else if(type==="textarea"){el=document.createElement("textarea");el.rows=id==="descricao"?3:2}
 else{el=document.createElement("input");el.type=type==="number"?"number":type;if(type==="number"){el.min="0";el.step=id==="custo_estimado"?"0.01":"0.1"}}
-el.id=id;if(required===true)el.required=true;
+el.id=id;if(required===true&&id!=="data_registro")el.required=true;
 if(id==="descricao")el.placeholder="Conte brevemente o que aconteceu e onde o problema foi identificado.";
 if(id.startsWith("porque_"))el.placeholder="Registre a resposta para este porquê";
 if(id.startsWith("acao_corretiva_")||id.startsWith("plano_acao_"))el.placeholder="Descreva a ação de forma objetiva";
